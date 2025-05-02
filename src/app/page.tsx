@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { formatPhoneNumber } from "./utils/formatters";
 import "./styles/page.css";
 
 interface Advocate {
@@ -12,15 +13,6 @@ interface Advocate {
   specialties: string[];
   yearsOfExperience: number | string;
   phoneNumber: string | number;
-}
-
-function formatPhoneNumber(phoneNumberString: string) {
-  const cleaned = phoneNumberString.replace(/\D/g, '');
-  const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
-  if (match) {
-    return '(' + match[1] + ') ' + match[2] + '-' + match[3];
-  }
-  return phoneNumberString;
 }
 
 export default function Home() {
