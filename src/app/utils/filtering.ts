@@ -32,6 +32,10 @@ export function filterAdvocates(advocates: Advocate[], searchTerm: string): Advo
     const city = String(advocate.city).toLowerCase();
     const degree = String(advocate.degree).toLowerCase();
     const yearsOfExperience = String(advocate.yearsOfExperience).toLowerCase();
+    const phoneNumber = String(advocate.phoneNumber).toLowerCase();
+    
+    const phoneDigitsOnly = phoneNumber.replace(/\D/g, '');
+    const searchTermDigitsOnly = term.replace(/\D/g, '');
     
     const matchesBasicInfo = 
       firstName.includes(term) ||
@@ -39,12 +43,16 @@ export function filterAdvocates(advocates: Advocate[], searchTerm: string): Advo
       fullName.includes(term) ||
       city.includes(term) ||
       degree.includes(term) ||
-      yearsOfExperience.includes(term);
+      yearsOfExperience.includes(term) ||
+      phoneNumber.includes(term);
+    
+    const matchesPhoneDigits = 
+      searchTermDigitsOnly.length > 0 && phoneDigitsOnly.includes(searchTermDigitsOnly);
     
     const matchesSpecialties = advocate.specialties.some(specialty => 
       String(specialty).toLowerCase().includes(term)
     );
     
-    return matchesBasicInfo || matchesSpecialties;
+    return matchesBasicInfo || matchesPhoneDigits || matchesSpecialties;
   });
 } 
