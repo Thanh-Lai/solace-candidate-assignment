@@ -10,7 +10,7 @@ interface Advocate {
   city: string;
   degree: string;
   specialties: string[];
-  yearsOfExperience: number | string; 
+  yearsOfExperience: number | string;
   phoneNumber: string | number;
 }
 
@@ -49,20 +49,13 @@ export default function Home() {
       });
   }, []);
 
-  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const term = e.target.value.toLowerCase();
-    setSearchTerm(term);
-    
-    const searchTermElement = document.getElementById("search-term");
-    if (searchTermElement) {
-      searchTermElement.innerHTML = e.target.value;
-    }
-
-    if (term.trim() === "") {
+  useEffect(() => {
+    if (searchTerm.trim() === "") {
       setFilteredAdvocates(advocates);
       return;
     }
 
+    const term = searchTerm.toLowerCase();
     const filtered = advocates.filter((advocate) => {
       const firstName = String(advocate.firstName).toLowerCase();
       const lastName = String(advocate.lastName).toLowerCase();
@@ -87,38 +80,43 @@ export default function Home() {
     });
     
     setFilteredAdvocates(filtered);
+  }, [searchTerm, advocates]);
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
   };
 
-  const onClick = () => {
+  const handleResetSearch = () => {
     setSearchTerm("");
-    setFilteredAdvocates(advocates);
-    const searchInput = document.querySelector(".search-input") as HTMLInputElement;
-    if (searchInput) {
-      searchInput.value = "";
-    }
-    const searchTermElement = document.getElementById("search-term");
-    if (searchTermElement) {
-      searchTermElement.innerHTML = "";
-    }
   };
 
   return (
     <main className="container">
       <h1>Solace Advocates</h1>
-      <br />
-      <br />
-      <div>
+      
+      <div className="search-section">
         <h2 className="search-title">Search</h2>
         <p className="search-term-display">
-          Searching for: <span id="search-term" className="search-term-highlight"></span>
+          Searching for: <span className="search-term-highlight">{searchTerm}</span>
         </p>
-        <input className="search-input" onChange={onChange} value={searchTerm} />
-        <button className="reset-button" onClick={onClick}>
-          Reset Search
-        </button>
+        <div className="search-controls">
+          <input 
+            className="search-input" 
+            onChange={handleSearchChange} 
+            value={searchTerm}
+            placeholder="Enter search term"
+            aria-label="Search advocates"
+          />
+          <button 
+            className="reset-button" 
+            onClick={handleResetSearch}
+            disabled={searchTerm === ""}
+          >
+            Reset Search
+          </button>
+        </div>
       </div>
-      <br />
-      <br />
+      
       <div className="table-container">
         {isLoading ? (
           <div className="loading-message">Loading data...</div>
@@ -132,7 +130,7 @@ export default function Home() {
                 <th className="table-header-cell">Degree</th>
                 <th className="table-header-cell" style={{ width: '50%' }}>Specialties</th>
                 <th className="table-header-cell">Years of Experience</th>
-                <th className="table-header-cell" style={{ width: '15%' }}>Phone Number</th>
+                <th className="table-header-cell" style={{ width: '10%' }}>Phone Number</th>
               </tr>
             </thead>
             <tbody>
@@ -149,7 +147,11 @@ export default function Home() {
                     <td className="table-cell">
                       <div className="specialties-container">
                         {advocate.specialties.map((specialty, i) => (
-                          <div key={`${advocate.id || index}-specialty-${i}-${specialty.replace(/\s+/g, '-')}`} className="specialty-tag">
+                          <div 
+                            key={`${advocate.id || index}-specialty-${i}-${specialty.replace(/\s+/g, '-')}`} 
+                            className="specialty-tag"
+                            title={specialty}
+                          >
                             {specialty}
                           </div>
                         ))}
