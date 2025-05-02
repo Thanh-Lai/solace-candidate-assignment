@@ -1,58 +1,15 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { formatPhoneNumber } from "./utils/formatters";
+import { filterAdvocates, Advocate } from "./utils/filtering";
 import "./styles/page.css";
-
-interface Advocate {
-  id: string;
-  firstName: string;
-  lastName: string;
-  city: string;
-  degree: string;
-  specialties: string[];
-  yearsOfExperience: number | string;
-  phoneNumber: string | number;
-}
 
 export default function Home() {
   const [advocates, setAdvocates] = useState<Advocate[]>([]);
   const [filteredAdvocates, setFilteredAdvocates] = useState<Advocate[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(true);
-
-  const filterAdvocates = useCallback(() => {
-    if (searchTerm.trim() === "") {
-      setFilteredAdvocates(advocates);
-      return;
-    }
-
-    const term = searchTerm.toLowerCase();
-    const filtered = advocates.filter((advocate) => {
-      const firstName = String(advocate.firstName).toLowerCase();
-      const lastName = String(advocate.lastName).toLowerCase();
-      const fullName = `${firstName} ${lastName}`;
-      const city = String(advocate.city).toLowerCase();
-      const degree = String(advocate.degree).toLowerCase();
-      const yearsOfExperience = String(advocate.yearsOfExperience).toLowerCase();
-      
-      const matchesBasicInfo = 
-        firstName.includes(term) ||
-        lastName.includes(term) ||
-        fullName.includes(term) ||
-        city.includes(term) ||
-        degree.includes(term) ||
-        yearsOfExperience.includes(term);
-      
-      const matchesSpecialties = advocate.specialties.some(specialty => 
-        String(specialty).toLowerCase().includes(term)
-      );
-      
-      return matchesBasicInfo || matchesSpecialties;
-    });
-    
-    setFilteredAdvocates(filtered);
-  }, [searchTerm, advocates]);
 
   useEffect(() => {
     setIsLoading(true);
@@ -75,8 +32,9 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    filterAdvocates();
-  }, [filterAdvocates]);
+    const filtered = filterAdvocates(advocates, searchTerm);
+    setFilteredAdvocates(filtered);
+  }, [searchTerm, advocates]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
