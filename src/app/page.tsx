@@ -139,7 +139,7 @@ export default function Home() {
               {filteredAdvocates.length > 0 ? (
                 filteredAdvocates.map((advocate, index) => (
                   <tr 
-                    key={advocate.id || index} 
+                    key={advocate.id || `advocate-${advocate.firstName}-${advocate.lastName}-${index}`} 
                     className={index % 2 === 0 ? "table-row-even" : "table-row-odd"}
                   >
                     <td className="table-cell">{advocate.firstName}</td>
@@ -149,7 +149,7 @@ export default function Home() {
                     <td className="table-cell">
                       <div className="specialties-container">
                         {advocate.specialties.map((specialty, i) => (
-                          <div key={i} className="specialty-tag">
+                          <div key={`${advocate.id || index}-specialty-${i}-${specialty.replace(/\s+/g, '-')}`} className="specialty-tag">
                             {specialty}
                           </div>
                         ))}
