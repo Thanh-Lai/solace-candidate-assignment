@@ -14,6 +14,15 @@ interface Advocate {
   phoneNumber: string | number;
 }
 
+function formatPhoneNumber(phoneNumberString: string) {
+  const cleaned = phoneNumberString.replace(/\D/g, '');
+  const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
+  if (match) {
+    return '(' + match[1] + ') ' + match[2] + '-' + match[3];
+  }
+  return phoneNumberString;
+}
+
 export default function Home() {
   const [advocates, setAdvocates] = useState<Advocate[]>([]);
   const [filteredAdvocates, setFilteredAdvocates] = useState<Advocate[]>([]);
@@ -114,9 +123,9 @@ export default function Home() {
               <th className="table-header-cell">Last Name</th>
               <th className="table-header-cell">City</th>
               <th className="table-header-cell">Degree</th>
-              <th className="table-header-cell">Specialties</th>
+              <th className="table-header-cell" style={{ width: '50%' }}>Specialties</th>
               <th className="table-header-cell">Years of Experience</th>
-              <th className="table-header-cell">Phone Number</th>
+              <th className="table-header-cell" style={{ width: '15%' }}>Phone Number</th>
             </tr>
           </thead>
           <tbody>
@@ -131,14 +140,20 @@ export default function Home() {
                   <td className="table-cell">{advocate.city}</td>
                   <td className="table-cell">{advocate.degree}</td>
                   <td className="table-cell">
-                    {advocate.specialties.map((specialty, i) => (
-                      <div key={i} className="specialty-tag">
-                        {specialty}
-                      </div>
-                    ))}
+                    <div className="specialties-container">
+                      {advocate.specialties.map((specialty, i) => (
+                        <div key={i} className="specialty-tag">
+                          {specialty}
+                        </div>
+                      ))}
+                    </div>
                   </td>
                   <td className="table-cell">{advocate.yearsOfExperience}</td>
-                  <td className="table-cell">{advocate.phoneNumber}</td>
+                  <td className="table-cell">
+                    <span className="phone-number">
+                      {formatPhoneNumber(String(advocate.phoneNumber))}
+                    </span>
+                  </td>
                 </tr>
               ))
             ) : (

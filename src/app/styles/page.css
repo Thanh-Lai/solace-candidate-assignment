@@ -46,7 +46,18 @@
   background-color: #3a80d2;
 }
 
-/* Table styles */
+
+.phone-number {
+  font-family: monospace;
+  font-size: 0.95rem;
+  padding: 5px 14px;
+  border-radius: 4px;
+  display: inline-block;
+  letter-spacing: 0.5px;
+  min-width: 180px;
+}
+
+
 .table-container {
   overflow-x: auto;
 }
@@ -57,6 +68,7 @@
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
   border-radius: 8px;
   overflow: hidden;
+  table-layout: fixed;
 }
 
 .table-header {
@@ -81,13 +93,23 @@
 .table-cell {
   padding: 12px 16px;
   border-bottom: 1px solid #eee;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .specialty-tag {
   display: inline-block;
   background-color: #e1efff;
-  padding: 2px 8px;
+  padding: 2px 6px;
   margin: 2px;
   border-radius: 12px;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
+}
+
+.specialties-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  max-height: 80px;
+  overflow-y: auto;
 } 
