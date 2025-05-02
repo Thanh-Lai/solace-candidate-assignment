@@ -27,8 +27,10 @@ export default function Home() {
   const [advocates, setAdvocates] = useState<Advocate[]>([]);
   const [filteredAdvocates, setFilteredAdvocates] = useState<Advocate[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
+    setIsLoading(true);
     fetch("/api/advocates")
       .then((response) => response.json())
       .then((jsonResponse) => {
@@ -39,9 +41,11 @@ export default function Home() {
         }));
         setAdvocates(formattedData);
         setFilteredAdvocates(formattedData);
+        setIsLoading(false);
       })
       .catch(error => {
         console.error("Error fetching advocates:", error);
+        setIsLoading(false);
       });
   }, []);
 
@@ -116,55 +120,59 @@ export default function Home() {
       <br />
       <br />
       <div className="table-container">
-        <table className="advocates-table">
-          <thead className="table-header">
-            <tr>
-              <th className="table-header-cell">First Name</th>
-              <th className="table-header-cell">Last Name</th>
-              <th className="table-header-cell">City</th>
-              <th className="table-header-cell">Degree</th>
-              <th className="table-header-cell" style={{ width: '50%' }}>Specialties</th>
-              <th className="table-header-cell">Years of Experience</th>
-              <th className="table-header-cell" style={{ width: '15%' }}>Phone Number</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredAdvocates.length > 0 ? (
-              filteredAdvocates.map((advocate, index) => (
-                <tr 
-                  key={advocate.id || index} 
-                  className={index % 2 === 0 ? "table-row-even" : "table-row-odd"}
-                >
-                  <td className="table-cell">{advocate.firstName}</td>
-                  <td className="table-cell">{advocate.lastName}</td>
-                  <td className="table-cell">{advocate.city}</td>
-                  <td className="table-cell">{advocate.degree}</td>
-                  <td className="table-cell">
-                    <div className="specialties-container">
-                      {advocate.specialties.map((specialty, i) => (
-                        <div key={i} className="specialty-tag">
-                          {specialty}
-                        </div>
-                      ))}
-                    </div>
-                  </td>
-                  <td className="table-cell">{advocate.yearsOfExperience}</td>
-                  <td className="table-cell">
-                    <span className="phone-number">
-                      {formatPhoneNumber(String(advocate.phoneNumber))}
-                    </span>
+        {isLoading ? (
+          <div className="loading-message">Loading data...</div>
+        ) : (
+          <table className="advocates-table">
+            <thead className="table-header">
+              <tr>
+                <th className="table-header-cell">First Name</th>
+                <th className="table-header-cell">Last Name</th>
+                <th className="table-header-cell">City</th>
+                <th className="table-header-cell">Degree</th>
+                <th className="table-header-cell" style={{ width: '50%' }}>Specialties</th>
+                <th className="table-header-cell">Years of Experience</th>
+                <th className="table-header-cell" style={{ width: '15%' }}>Phone Number</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredAdvocates.length > 0 ? (
+                filteredAdvocates.map((advocate, index) => (
+                  <tr 
+                    key={advocate.id || index} 
+                    className={index % 2 === 0 ? "table-row-even" : "table-row-odd"}
+                  >
+                    <td className="table-cell">{advocate.firstName}</td>
+                    <td className="table-cell">{advocate.lastName}</td>
+                    <td className="table-cell">{advocate.city}</td>
+                    <td className="table-cell">{advocate.degree}</td>
+                    <td className="table-cell">
+                      <div className="specialties-container">
+                        {advocate.specialties.map((specialty, i) => (
+                          <div key={i} className="specialty-tag">
+                            {specialty}
+                          </div>
+                        ))}
+                      </div>
+                    </td>
+                    <td className="table-cell">{advocate.yearsOfExperience}</td>
+                    <td className="table-cell">
+                      <span className="phone-number">
+                        {formatPhoneNumber(String(advocate.phoneNumber))}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={7} className="table-cell" style={{ textAlign: 'center' }}>
+                    No results found. Try a different search term.
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={7} className="table-cell" style={{ textAlign: 'center' }}>
-                  No results found. Try a different search term.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+              )}
+            </tbody>
+          </table>
+        )}
       </div>
     </main>
   );
