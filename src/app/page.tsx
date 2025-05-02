@@ -11,50 +11,83 @@ interface Advocate {
   city: string;
   degree: string;
   specialties: string[];
-  yearsOfExperience: string;
-  phoneNumber: string;
+  yearsOfExperience: number | string; 
+  phoneNumber: string | number;
 }
 
 export default function Home() {
   const [advocates, setAdvocates] = useState<Advocate[]>([]);
   const [filteredAdvocates, setFilteredAdvocates] = useState<Advocate[]>([]);
+  const [searchTerm, setSearchTerm] = useState<string>("");
 
   useEffect(() => {
-    console.log("fetching advocates...");
-    fetch("/api/advocates").then((response) => {
-      response.json().then((jsonResponse) => {
-        setAdvocates(jsonResponse.data);
-        setFilteredAdvocates(jsonResponse.data);
+    fetch("/api/advocates")
+      .then((response) => response.json())
+      .then((jsonResponse) => {
+        const formattedData = jsonResponse.data.map((advocate: Advocate) => ({
+          ...advocate,
+          yearsOfExperience: String(advocate.yearsOfExperience),
+          phoneNumber: String(advocate.phoneNumber)
+        }));
+        setAdvocates(formattedData);
+        setFilteredAdvocates(formattedData);
+      })
+      .catch(error => {
+        console.error("Error fetching advocates:", error);
       });
-    });
   }, []);
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const searchTerm = e.target.value;
-    const searchTermElement = document.getElementById("search-term");
+    const term = e.target.value.toLowerCase();
+    setSearchTerm(term);
     
+    const searchTermElement = document.getElementById("search-term");
     if (searchTermElement) {
-      searchTermElement.innerHTML = searchTerm;
+      searchTermElement.innerHTML = e.target.value;
     }
 
-    console.log("filtering advocates...");
-    const filtered = advocates.filter((advocate) => {
-      return (
-        advocate.firstName.includes(searchTerm) ||
-        advocate.lastName.includes(searchTerm) ||
-        advocate.city.includes(searchTerm) ||
-        advocate.degree.includes(searchTerm) ||
-        advocate.specialties.includes(searchTerm) ||
-        advocate.yearsOfExperience.includes(searchTerm)
-      );
-    });
+    if (term.trim() === "") {
+      setFilteredAdvocates(advocates);
+      return;
+    }
 
+    const filtered = advocates.filter((advocate) => {
+      const firstName = String(advocate.firstName).toLowerCase();
+      const lastName = String(advocate.lastName).toLowerCase();
+      const fullName = `${firstName} ${lastName}`;
+      const city = String(advocate.city).toLowerCase();
+      const degree = String(advocate.degree).toLowerCase();
+      const yearsOfExperience = String(advocate.yearsOfExperience).toLowerCase();
+      
+      const matchesBasicInfo = 
+        firstName.includes(term) ||
+        lastName.includes(term) ||
+        fullName.includes(term) ||
+        city.includes(term) ||
+        degree.includes(term) ||
+        yearsOfExperience.includes(term);
+      
+      const matchesSpecialties = advocate.specialties.some(specialty => 
+        String(specialty).toLowerCase().includes(term)
+      );
+      
+      return matchesBasicInfo || matchesSpecialties;
+    });
+    
     setFilteredAdvocates(filtered);
   };
 
   const onClick = () => {
-    console.log(advocates);
+    setSearchTerm("");
     setFilteredAdvocates(advocates);
+    const searchInput = document.querySelector(".search-input") as HTMLInputElement;
+    if (searchInput) {
+      searchInput.value = "";
+    }
+    const searchTermElement = document.getElementById("search-term");
+    if (searchTermElement) {
+      searchTermElement.innerHTML = "";
+    }
   };
 
   return (
@@ -67,7 +100,7 @@ export default function Home() {
         <p>
           Searching for: <span id="search-term"></span>
         </p>
-        <input className="search-input" onChange={onChange} />
+        <input className="search-input" onChange={onChange} value={searchTerm} />
         <button className="reset-button" onClick={onClick}>
           Reset Search
         </button>
@@ -88,8 +121,8 @@ export default function Home() {
             </tr>
           </thead>
           <tbody>
-            {filteredAdvocates.map((advocate, index) => {
-              return (
+            {filteredAdvocates.length > 0 ? (
+              filteredAdvocates.map((advocate, index) => (
                 <tr 
                   key={advocate.id || index} 
                   className={index % 2 === 0 ? "table-row-even" : "table-row-odd"}
@@ -108,8 +141,14 @@ export default function Home() {
                   <td className="table-cell">{advocate.yearsOfExperience}</td>
                   <td className="table-cell">{advocate.phoneNumber}</td>
                 </tr>
-              );
-            })}
+              ))
+            ) : (
+              <tr>
+                <td colSpan={7} className="table-cell" style={{ textAlign: 'center' }}>
+                  No results found. Try a different search term.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
