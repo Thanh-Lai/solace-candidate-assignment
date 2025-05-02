@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import "./styles/page.css";
 
 interface Advocate {
@@ -29,27 +29,7 @@ export default function Home() {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  useEffect(() => {
-    setIsLoading(true);
-    fetch("/api/advocates")
-      .then((response) => response.json())
-      .then((jsonResponse) => {
-        const formattedData = jsonResponse.data.map((advocate: Advocate) => ({
-          ...advocate,
-          yearsOfExperience: String(advocate.yearsOfExperience),
-          phoneNumber: String(advocate.phoneNumber)
-        }));
-        setAdvocates(formattedData);
-        setFilteredAdvocates(formattedData);
-        setIsLoading(false);
-      })
-      .catch(error => {
-        console.error("Error fetching advocates:", error);
-        setIsLoading(false);
-      });
-  }, []);
-
-  useEffect(() => {
+  const filterAdvocates = useCallback(() => {
     if (searchTerm.trim() === "") {
       setFilteredAdvocates(advocates);
       return;
@@ -81,6 +61,30 @@ export default function Home() {
     
     setFilteredAdvocates(filtered);
   }, [searchTerm, advocates]);
+
+  useEffect(() => {
+    setIsLoading(true);
+    fetch("/api/advocates")
+      .then((response) => response.json())
+      .then((jsonResponse) => {
+        const formattedData = jsonResponse.data.map((advocate: Advocate) => ({
+          ...advocate,
+          yearsOfExperience: String(advocate.yearsOfExperience),
+          phoneNumber: String(advocate.phoneNumber)
+        }));
+        setAdvocates(formattedData);
+        setFilteredAdvocates(formattedData);
+        setIsLoading(false);
+      })
+      .catch(error => {
+        console.error("Error fetching advocates:", error);
+        setIsLoading(false);
+      });
+  }, []);
+
+  useEffect(() => {
+    filterAdvocates();
+  }, [filterAdvocates]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
@@ -130,7 +134,7 @@ export default function Home() {
                 <th className="table-header-cell">Degree</th>
                 <th className="table-header-cell" style={{ width: '50%' }}>Specialties</th>
                 <th className="table-header-cell">Years of Experience</th>
-                <th className="table-header-cell" style={{ width: '10%' }}>Phone Number</th>
+                <th className="table-header-cell" style={{ width: '15%' }}>Phone Number</th>
               </tr>
             </thead>
             <tbody>
