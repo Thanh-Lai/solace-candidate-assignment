@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import "./styles/page.css";
 
-// Define advocate type
 interface Advocate {
   id: string;
   firstName: string;
@@ -96,9 +95,9 @@ export default function Home() {
       <br />
       <br />
       <div>
-        <p>Search</p>
-        <p>
-          Searching for: <span id="search-term"></span>
+        <h2 className="search-title">Search</h2>
+        <p className="search-term-display">
+          Searching for: <span id="search-term" className="search-term-highlight"></span>
         </p>
         <input className="search-input" onChange={onChange} value={searchTerm} />
         <button className="reset-button" onClick={onClick}>
